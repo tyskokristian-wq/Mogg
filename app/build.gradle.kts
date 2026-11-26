@@ -15,11 +15,15 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        // Только телефоны (ARM) — x86-библиотеки ML Kit не нужны
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // Подписываем debug-ключом, чтобы release-APK можно было сразу поставить на телефон.
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -68,4 +72,6 @@ dependencies {
 
     // Health Connect — сюда пишет YAZIO
     implementation("androidx.health.connect:connect-client:1.1.0-alpha10")
+
+    testImplementation("junit:junit:4.13.2")
 }
