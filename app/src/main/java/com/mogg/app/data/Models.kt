@@ -107,6 +107,10 @@ data class Profile(
     val weightKg: Double = 70.0,
     val activity: Activity = Activity.SITTING,
     val intakeGoal: Int = 1500,
+    /** true — кардио минимум 600 (еда поднимается), false — еда ровно как выбрал. */
+    val cardioPriority: Boolean = true,
+    /** Сколько минут готов кардио — единственное, что выбираешь. */
+    val cardioSessionMinutes: Int = 45,
     /** flaw.name -> сила 1..3 */
     val flaws: Map<String, Int> = emptyMap(),
     val photoFlaws: Map<String, Int> = emptyMap(),
@@ -136,6 +140,7 @@ data class DayLog(
     val healthConnectKcal: Int? = null,
     val cardioKcal: Int = 0,
     val cardioMinutes: Int = 0,
+    val cardioSessions: Int = 0,
     val morningDone: Boolean = false,
     val eveningDone: Boolean = false,
     val waterMl: Int = 0,

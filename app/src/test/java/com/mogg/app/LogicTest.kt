@@ -60,7 +60,18 @@ class LogicTest {
             val plan = Nutrition.plan(p)
             println("age=${p.age} ${p.heightCm}/${p.weightKg} eat=${p.intakeGoal}: tdee=${plan.tdee} cardio=${plan.cardioTarget} net=${plan.net} deficit=${plan.deficit} max=${plan.maxDeficit} recomp=${plan.recompMode}")
             assertTrue(plan.deficit <= plan.maxDeficit + 1 || (plan.cardioTarget == 0 && plan.warnings.isNotEmpty()))
-            assertTrue(plan.cardioTarget in 600..1000)
+            assertTrue(plan.cardioTarget in 0..1000)
+            val pc = Nutrition.plan(p.copy(cardioPriority = true)); assertTrue(pc.cardioTarget >= 600)
+            println("   cardioPriority: cardio=${pc.cardioTarget} eat=${pc.intake}")
+        }
+    }
+
+    @Test fun intervals() {
+        val p = Profile(age = 20, heightCm = 170, weightKg = 52.0, cardioMode = com.mogg.app.data.CardioMode.TREADMILL)
+        for (m in listOf(20, 30, 45, 60, 90)) {
+            val s = com.mogg.app.cardio.IntervalPlanner.build(p, 600, m)
+            println("min=$m -> ${s.seconds / 60} мин ${s.kcal} ккал ${s.patternName} run=${s.intervals.first { it.pace == com.mogg.app.cardio.Pace.RUN }.setting}")
+            assertTrue(s.seconds == m * 60)
         }
     }
 }

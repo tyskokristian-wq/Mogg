@@ -1,7 +1,6 @@
 package com.mogg.app.data
 
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -57,13 +56,21 @@ object Nutrition {
         }
         val recomp = maxDeficit == 0
 
-        // Кардио всегда минимум 600 ккал (до 1000 — если ешь больше).
-        val cardio = (p.intakeGoal - TARGET_NET).coerceIn(CARDIO_MIN, CARDIO_MAX)
-        // Еда подстраивается так, чтобы общий дефицит не превышал maxDeficit.
-        val minIntake = (tdee + cardio - maxDeficit).roundToInt()
-        val intake = max(p.intakeGoal, minIntake)
-        if (intake > p.intakeGoal) {
-            tips += "С кардио $cardio ккал можно есть $intake ккал — худеешь с той же скоростью."
+        val wantedCardio = (p.intakeGoal - TARGET_NET).coerceIn(CARDIO_MIN, CARDIO_MAX)
+        val cardio: Int
+        val intake: Int
+        if (p.cardioPriority) {
+            // Кардио минимум 600, еда поднимается, чтобы дефицит не превысил maxDeficit.
+            cardio = wantedCardio
+            intake = max(p.intakeGoal, (tdee + cardio - maxDeficit).roundToInt())
+            if (intake > p.intakeGoal) tips += "Чтобы кардио было $cardio ккал, еда поднята до $intake ккал."
+        } else {
+            // Еда — ровно как выбрал. Кардио — сколько влезает в дефицит.
+            intake = p.intakeGoal
+            val allowed = (maxDeficit - (tdee - intake)).roundToInt()
+            cardio = allowed.coerceIn(0, wantedCardio)
+            if (cardio < wantedCardio) tips += "Хочешь кардио $wantedCardio ккал — выбери «Приоритет: кардио», еда станет ${(tdee + wantedCardio - maxDeficit).roundToInt()} ккал."
+            if (allowed < 0) warnings += "Еда уже даёт дефицит ${(tdee - intake).roundToInt()} ккал."
         }
 
         val net = intake - cardio

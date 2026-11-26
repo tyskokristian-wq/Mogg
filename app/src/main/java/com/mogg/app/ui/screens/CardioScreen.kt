@@ -1,22 +1,23 @@
 package com.mogg.app.ui.screens
 
-import com.mogg.app.ui.YesSign
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,11 +27,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mogg.app.data.Cardio
+import com.mogg.app.cardio.IntervalPlanner
+import com.mogg.app.cardio.Pace
 import com.mogg.app.data.CardioMode
 import com.mogg.app.data.Nutrition
 import com.mogg.app.data.Store
-import kotlin.math.roundToInt
+import com.mogg.app.ui.YesSign
+import com.mogg.app.ui.theme.LightGreen
+import com.mogg.app.ui.theme.SkyBlue
+import com.mogg.app.ui.theme.WarnBg
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -40,58 +45,84 @@ fun CardioScreen(onStart: () -> Unit) {
     val day = state.days[Store.today()] ?: Store.day()
     val plan = Nutrition.plan(p, day.eatenTotal)
     val left = (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0)
-    val perMin = Cardio.kcalPerMinute(p)
-    val minutes = Cardio.minutesFor(left, p)
+    val session = IntervalPlanner.build(p, left, p.cardioSessionMinutes)
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Кардио", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             YesSign(100.dp, -10f)
         }
-        Text("Комфортно, без бега до смерти. Пока идёшь — смотришь MrBeast.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Выбери только время — скорость, наклон и схему шаг/бег приложение подберёт само.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(12.dp))
 
-        Text("Режим", fontWeight = FontWeight.SemiBold)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = p.cardioMode == CardioMode.TREADMILL, onClick = { Store.updateProfile { it.copy(cardioMode = CardioMode.TREADMILL) } }, label = { Text("Беговая дорожка") })
-            FilterChip(selected = p.cardioMode != CardioMode.TREADMILL, onClick = { if (p.cardioMode == CardioMode.TREADMILL) Store.updateProfile { it.copy(cardioMode = CardioMode.WALK) } }, label = { Text("Обычное кардио") })
-        }
-        if (p.cardioMode != CardioMode.TREADMILL) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(CardioMode.WALK, CardioMode.BIKE, CardioMode.ELLIPTICAL).forEach { m ->
-                    FilterChip(selected = p.cardioMode == m, onClick = { Store.updateProfile { it.copy(cardioMode = m) } }, label = { Text(m.title) })
-                }
+        Text("Сколько минут", fontWeight = FontWeight.SemiBold)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(20, 30, 45, 60, 90, 120).forEach { m ->
+                FilterChip(selected = p.cardioSessionMinutes == m, onClick = { Store.updateProfile { it.copy(cardioSessionMinutes = m) } }, label = { Text("$m мин") })
             }
         }
+        Spacer(Modifier.height(8.dp))
 
-        if (p.cardioMode == CardioMode.TREADMILL) {
-            Spacer(Modifier.height(8.dp))
-            Text("Скорость: ${"%.1f".format(p.treadmillSpeed)} км/ч")
-            Slider(value = p.treadmillSpeed.toFloat(), valueRange = 3f..10f, onValueChange = { v -> Store.updateProfile { it.copy(treadmillSpeed = (v * 2).roundToInt() / 2.0) } })
-            Text("Наклон: ${"%.0f".format(p.treadmillIncline)}%")
-            Slider(value = p.treadmillIncline.toFloat(), valueRange = 0f..15f, onValueChange = { v -> Store.updateProfile { it.copy(treadmillIncline = v.roundToInt().toDouble()) } })
-            Text("Совет: 5 км/ч и наклон 8–12% — горит как бег, но идёшь спокойно и колени целы.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Где", fontWeight = FontWeight.SemiBold)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                CardioMode.TREADMILL to "Беговая дорожка",
+                CardioMode.WALK to "На улице",
+                CardioMode.BIKE to "Велосипед",
+                CardioMode.ELLIPTICAL to "Эллипс",
+            ).forEach { (m, t) ->
+                FilterChip(selected = p.cardioMode == m, onClick = { Store.updateProfile { it.copy(cardioMode = m) } }, label = { Text(t) })
+            }
         }
 
         Spacer(Modifier.height(12.dp))
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
-                Text("Сегодня: ${day.cardioKcal} / ${plan.cardioTarget} ккал · ${day.cardioMinutes} мин", fontWeight = FontWeight.Bold)
-                Text(Cardio.description(p))
-                Text("≈ ${"%.1f".format(perMin)} ккал/мин при весе ${p.weightKg} кг")
-                Spacer(Modifier.height(6.dp))
-                if (left > 0) {
-                    val sessions = Cardio.sessions(minutes)
-                    Text("Осталось ~$left ккал = $minutes мин", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                    if (sessions.size > 1) Text("Лучше разбить: " + sessions.joinToString(" + ") { "$it мин" } + " (утро/вечер)", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Сегодня: ${day.cardioKcal} / ${plan.cardioTarget} ккал", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                if (left <= 0) {
+                    Text("Кардио на сегодня сделано ✅", color = MaterialTheme.colorScheme.primary)
                 } else {
-                    Text("План по кардио выполнен ✅. Можно ещё погулять — просто для здоровья.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${session.seconds / 60} мин · ~${session.kcal} ккал · ${session.patternName}", fontWeight = FontWeight.SemiBold)
+                    if (session.kcal < left) Text(
+                        "За ${p.cardioSessionMinutes} мин успеешь ~${session.kcal} из $left ккал. Остальное — ещё одной тренировкой или выбери больше минут.",
+                        fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-                plan.warnings.firstOrNull()?.let { Text(it, fontSize = 13.sp, color = MaterialTheme.colorScheme.error) }
             }
         }
-        Spacer(Modifier.height(12.dp))
-        Button(onClick = onStart, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("Начать кардио", fontSize = 18.sp) }
+
+        if (left > 0) {
+            Spacer(Modifier.height(12.dp))
+            // Сжатый план: одинаковые подряд интервалы склеиваем
+            val runs = session.intervals.count { it.pace == Pace.RUN }
+            val first = session.intervals.first()
+            val run = session.intervals.firstOrNull { it.pace == Pace.RUN }
+            val walk = session.intervals.firstOrNull { it.pace == Pace.WALK }
+            val last = session.intervals.last()
+            PlanLine("Разминка", "${first.seconds / 60} мин", first.setting, LightGreen)
+            if (run != null && walk != null) {
+                PlanLine("Бег × $runs", "", run.setting, WarnBg)
+                PlanLine("Шаг между ними", "", walk.setting, SkyBlue)
+            }
+            PlanLine("Заминка", "${last.seconds / 60} мин", last.setting, LightGreen)
+        }
+
         Spacer(Modifier.height(16.dp))
+        Button(onClick = onStart, enabled = left > 0, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            Text("Начать кардио", fontSize = 18.sp)
+        }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun PlanLine(title: String, time: String, setting: String, color: androidx.compose.ui.graphics.Color) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 3.dp).background(color, RoundedCornerShape(12.dp)).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(title, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        Text(setting)
+        if (time.isNotEmpty()) { Spacer(Modifier.width(8.dp)); Text(time, color = MaterialTheme.colorScheme.onSurfaceVariant) }
     }
 }

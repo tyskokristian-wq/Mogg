@@ -5,6 +5,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -46,6 +49,7 @@ import com.mogg.app.ui.theme.WarnBg
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NutritionScreen() {
     val context = LocalContext.current
@@ -58,11 +62,12 @@ fun NutritionScreen() {
     var hcStatus by remember { mutableStateOf<String?>(null) }
 
     suspend fun sync() {
-        val kcal = HealthSync.eatenToday(context)
-        if (kcal != null) {
-            Store.updateDay { it.copy(healthConnectKcal = kcal) }
-            hcStatus = "Из YAZIO / Health Connect: $kcal ккал"
-        } else hcStatus = "Не удалось прочитать Health Connect"
+        HealthSync.eatenToday(context)
+            .onSuccess { kcal ->
+                Store.updateDay { it.copy(healthConnectKcal = kcal) }
+                hcStatus = "Из YAZIO / Health Connect: $kcal ккал"
+            }
+            .onFailure { hcStatus = "Не удалось прочитать Health Connect: ${it.message}" }
     }
 
     val permLauncher = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) { granted ->
@@ -102,7 +107,7 @@ fun NutritionScreen() {
                         add = ""
                     }, modifier = Modifier.padding(top = 8.dp)) { Text("Добавить") }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(100, 300, 500).forEach { v ->
                         OutlinedButton(onClick = { Store.updateDay { it.copy(eatenKcal = it.eatenKcal + v) } }) { Text("+$v") }
                     }
@@ -139,6 +144,11 @@ fun NutritionScreen() {
                     value = p.intakeGoal.toFloat(), valueRange = 1200f..3500f, steps = (3500 - 1200) / 50 - 1,
                     onValueChange = { v -> Store.updateProfile { it.copy(intakeGoal = (v / 50).roundToInt() * 50) } }
                 )
+                Text("Что важнее", fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !p.cardioPriority, onClick = { Store.updateProfile { it.copy(cardioPriority = false) } }, label = { Text("Еда ${p.intakeGoal}") })
+                    FilterChip(selected = p.cardioPriority, onClick = { Store.updateProfile { it.copy(cardioPriority = true) } }, label = { Text("Кардио 600+") })
+                }
                 Row { Text("Обмен в покое (BMR)", Modifier.weight(1f)); Text("${plan.bmr}") }
                 Row { Text("Норма с активностью", Modifier.weight(1f)); Text("${plan.tdee}") }
                 Row { Text("Кардио в день", Modifier.weight(1f)); Text("${plan.cardioTarget}") }
