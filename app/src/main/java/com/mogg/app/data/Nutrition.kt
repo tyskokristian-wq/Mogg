@@ -56,7 +56,7 @@ object Nutrition {
         }
         val recomp = maxDeficit == 0
 
-        val wantedCardio = (p.intakeGoal - TARGET_NET).coerceIn(CARDIO_MIN, CARDIO_MAX)
+        val wantedCardio = p.cardioGoal.coerceIn(0, CARDIO_MAX)
         val cardio: Int
         val intake: Int
         if (p.cardioPriority) {

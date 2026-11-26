@@ -54,8 +54,8 @@ import java.time.Instant
 import kotlin.math.roundToInt
 
 private fun paceColor(p: Pace) = when (p) {
-    Pace.RUN -> Color(0xFFFF8A65)
-    Pace.WALK -> Color(0xFF7CC8FF)
+    Pace.HARD -> Color(0xFFFF8A65)
+    Pace.EASY -> Color(0xFF7CC8FF)
     else -> Color(0xFF7CE0A3)
 }
 
@@ -69,8 +69,7 @@ fun CardioRunScreen(onClose: () -> Unit) {
     val day = start.days[Store.today()] ?: Store.day()
     val session = remember {
         val plan = Nutrition.plan(p, day.eatenTotal)
-        val left = (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0)
-        IntervalPlanner.build(p, left, IntervalPlanner.pickMinutes(p, left))
+        IntervalPlanner.build(p, (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0))
     }
     val lib = remember { ExerciseLibrary.get(context) }
 
@@ -100,12 +99,15 @@ fun CardioRunScreen(onClose: () -> Unit) {
 
     fun announce(i: Int) {
         val iv = session.intervals[i]
-        val (key, text) = when (iv.pace) {
-            Pace.WARMUP -> "cardio_start" to (lib.phrases["cardio_start"] ?: "Разминка")
-            Pace.RUN -> "cardio_run" to (lib.phrases["cardio_run"] ?: "Бег!")
-            Pace.WALK -> "cardio_walk" to (lib.phrases["cardio_walk"] ?: "Переходи на шаг.")
-            Pace.COOLDOWN -> "cardio_cooldown" to (lib.phrases["cardio_cooldown"] ?: "Заминка.")
+        val noRun = p.cardioMode == com.mogg.app.data.CardioMode.BIKE || p.cardioMode == com.mogg.app.data.CardioMode.ELLIPTICAL
+        val walkOnly = session.intervals.none { it.pace == Pace.HARD }
+        val key = when (iv.pace) {
+            Pace.WARMUP -> "cardio_start"
+            Pace.HARD -> if (noRun) "cardio_fast" else "cardio_run"
+            Pace.EASY -> if (noRun) "cardio_easy" else if (walkOnly) "cardio_incline" else "cardio_walk"
+            Pace.COOLDOWN -> "cardio_cooldown"
         }
+        val text = lib.phrases[key] ?: iv.label
         narrator.speak(key, text)
     }
 
@@ -164,7 +166,7 @@ fun CardioRunScreen(onClose: () -> Unit) {
                 IconButton(onClick = onClose) { Icon(Icons.Default.Stop, "Выйти", tint = Color.White) }
             } else {
                 val iv = session.intervals[index]
-                Text(iv.pace.title.uppercase(), color = paceColor(iv.pace), fontSize = 24.sp, fontWeight = FontWeight.Black)
+                Text(iv.label, color = paceColor(iv.pace), fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(iv.setting, color = Color.White, fontSize = 14.sp)
                 Text("%d:%02d".format(remaining / 60, remaining % 60), color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold)
                 LinearProgressIndicator(
@@ -174,7 +176,7 @@ fun CardioRunScreen(onClose: () -> Unit) {
                 )
                 Spacer(Modifier.height(6.dp))
                 session.intervals.getOrNull(index + 1)?.let {
-                    Text("Дальше: ${it.pace.title.lowercase()} ${it.seconds / 60}:%02d".format(it.seconds % 60), color = Color.White.copy(0.7f), fontSize = 12.sp)
+                    Text("Дальше: ${it.label.lowercase()} ${it.seconds / 60}:%02d".format(it.seconds % 60), color = Color.White.copy(0.7f), fontSize = 12.sp)
                 }
                 val total = session.seconds
                 Text(

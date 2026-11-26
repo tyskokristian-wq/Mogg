@@ -111,6 +111,10 @@ data class Profile(
     val cardioPriority: Boolean = true,
     /** Сколько минут готов кардио — единственное, что выбираешь. */
     val cardioSessionMinutes: Int = 45,
+    /** Цель кардио: 500 или 600 ккал. */
+    val cardioGoal: Int = 600,
+    /** Выбранный вариант интервалов (id из IntervalPlanner). */
+    val cardioLevel: String = "",
     /** flaw.name -> сила 1..3 */
     val flaws: Map<String, Int> = emptyMap(),
     val photoFlaws: Map<String, Int> = emptyMap(),

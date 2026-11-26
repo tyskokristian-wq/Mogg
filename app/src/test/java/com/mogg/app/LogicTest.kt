@@ -67,15 +67,13 @@ class LogicTest {
     }
 
     @Test fun intervals() {
-        val p = Profile(age = 20, heightCm = 170, weightKg = 52.0, cardioMode = com.mogg.app.data.CardioMode.TREADMILL)
-        for (kg in listOf(52.0, 70.0, 90.0)) {
-            val pk = p.copy(weightKg = kg)
-            for (m in com.mogg.app.cardio.IntervalPlanner.timeOptions(pk, 600)) {
-                val s = com.mogg.app.cardio.IntervalPlanner.build(pk, 600, m)
-                println("kg=$kg min=$m -> ${s.kcal} ккал ${s.patternName}")
-                assertTrue(s.kcal >= 600)
-                assertTrue(s.seconds == m * 60)
-            }
+        for (mode in com.mogg.app.data.CardioMode.entries) for (kg in listOf(52.0, 70.0)) for (goal in listOf(500, 600)) {
+            val p = Profile(age = 20, heightCm = 170, weightKg = kg, cardioMode = mode)
+            val opts = com.mogg.app.cardio.IntervalPlanner.options(p, goal)
+            println("$mode kg=$kg goal=$goal: " + opts.joinToString { "${it.session.minutes}м ${it.session.kcal}к [${it.session.name}]" })
+            opts.forEach { assertTrue(it.session.kcal >= goal) }
+            if (mode == com.mogg.app.data.CardioMode.ELLIPTICAL || mode == com.mogg.app.data.CardioMode.BIKE)
+                opts.forEach { o -> o.session.intervals.forEach { assertTrue(it.label != "БЕГ" && it.label != "ШАГ") } }
         }
     }
 }
