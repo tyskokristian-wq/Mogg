@@ -1,5 +1,6 @@
 package com.mogg.app.workout
 
+import com.mogg.app.ui.YesSign
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -252,6 +253,8 @@ private fun FinishedPanel(slot: Slot, onClose: () -> Unit, modifier: Modifier) {
         modifier.padding(24.dp).background(Color(0xEE111118), RoundedCornerShape(24.dp)).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        YesSign(200.dp, -6f)
+        Spacer(Modifier.height(8.dp))
         Text("Готово 🔥", color = Accent, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Text(if (slot == Slot.MORNING) "Утренняя тренировка засчитана" else "Вечерняя тренировка засчитана", color = Color.White)
         Spacer(Modifier.height(16.dp))

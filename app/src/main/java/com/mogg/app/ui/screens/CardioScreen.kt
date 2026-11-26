@@ -1,5 +1,6 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,7 +44,10 @@ fun CardioScreen(onStart: () -> Unit) {
     val minutes = Cardio.minutesFor(left, p)
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("Кардио", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Кардио", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            YesSign(100.dp, -10f)
+        }
         Text("Комфортно, без бега до смерти. Пока идёшь — смотришь MrBeast.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(12.dp))
 

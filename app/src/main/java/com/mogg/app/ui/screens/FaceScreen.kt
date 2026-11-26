@@ -1,11 +1,13 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -110,7 +112,10 @@ fun FaceScreen() {
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) analyze(photoUri) }
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("Анализ лица", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Анализ лица", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            YesSign(84.dp, -6f)
+        }
         Text(
             "Фото анфас, ровный свет, лицо без эмоций, волосы убраны со лба. Приложение само расставит точки и посчитает симметрию, наклон глаз и пропорции.",
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -125,7 +130,10 @@ fun FaceScreen() {
 
         result?.let { r ->
             Spacer(Modifier.height(16.dp))
-            FaceOverlay(r)
+            Box {
+                FaceOverlay(r)
+                YesSign(96.dp, -14f, Modifier.align(Alignment.BottomEnd).padding(8.dp))
+            }
             Spacer(Modifier.height(12.dp))
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {

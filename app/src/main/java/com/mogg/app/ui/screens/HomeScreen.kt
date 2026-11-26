@@ -1,5 +1,6 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,7 @@ fun HomeScreen(onWorkout: (Slot) -> Unit, onCardio: () -> Unit, onFood: () -> Un
                 Text("Mogg", color = Accent, fontSize = 34.sp, fontWeight = FontWeight.Black)
                 Text("Серия: ${Store.streak(state)} дн. 🔥", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            YesSign(86.dp, 9f)
             IconButton(onClick = onSettings) { Icon(Icons.Default.Settings, "Настройки") }
         }
         Spacer(Modifier.height(12.dp))
@@ -109,6 +111,12 @@ fun HomeScreen(onWorkout: (Slot) -> Unit, onCardio: () -> Unit, onFood: () -> Un
             }
         }
         Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            YesSign(80.dp, -12f)
+            YesSign(110.dp, 4f)
+            YesSign(70.dp, 14f)
+        }
+        Spacer(Modifier.height(16.dp))
     }
 }
 
@@ -123,6 +131,7 @@ private fun WorkoutCard(title: String, steps: List<WorkoutStep>, done: Boolean, 
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                if (done) YesSign(54.dp, -10f, Modifier.padding(end = 8.dp))
                 Text(if (done) "✅ сделано" else "${total / 60} мин ▸", color = if (done) Good else Accent, fontWeight = FontWeight.SemiBold)
             }
             Text(

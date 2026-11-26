@@ -1,5 +1,6 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import android.Manifest
 import android.app.TimePickerDialog
 import android.os.Build
@@ -137,7 +138,10 @@ fun OnboardingScreen() {
     }
 
     Column(Modifier.systemBarsPadding().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("MOGG", color = Accent, fontSize = 44.sp, fontWeight = FontWeight.Black)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("MOGG", color = Accent, fontSize = 44.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+            YesSign(120.dp, 10f)
+        }
         Text("Асценд по плану: лицо утром 10 минут, вечером 20, кардио и питание.", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(20.dp))
         ProfileFields(draft) { draft = it }

@@ -1,5 +1,6 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -75,7 +77,10 @@ fun NutritionScreen() {
     }
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("Питание", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Питание", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            YesSign(96.dp, 8f)
+        }
         Spacer(Modifier.height(12.dp))
 
         Card(Modifier.fillMaxWidth()) {

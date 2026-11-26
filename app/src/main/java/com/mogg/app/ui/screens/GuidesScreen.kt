@@ -1,5 +1,6 @@
 package com.mogg.app.ui.screens
 
+import com.mogg.app.ui.YesSign
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,7 +47,10 @@ fun GuidesScreen() {
     }
     LazyColumn(Modifier.padding(horizontal = 16.dp)) {
         item {
-            Text("Гайды", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+            Row(Modifier.padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Гайды", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                YesSign(90.dp, 7f)
+            }
             Text("Лицо, кожа, сон, тело, стиль", color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
         }
