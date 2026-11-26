@@ -21,15 +21,15 @@
         android:orientation="horizontal"
         android:layout_marginTop="4dp">
         <TextView android:id="@+id/w_morning" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:textColor="#FFFFFFFF" android:textSize="15sp" />
+            android:layout_height="wrap_content" android:textColor="@color/widget_text" android:textSize="15sp" />
         <TextView android:id="@+id/w_evening" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:textColor="#FFFFFFFF" android:textSize="15sp" />
+            android:layout_height="wrap_content" android:textColor="@color/widget_text" android:textSize="15sp" />
     </LinearLayout>
 
     <TextView android:id="@+id/w_cardio" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="4dp" android:textColor="#FFFFFFFF" android:textSize="14sp" />
+        android:layout_marginTop="4dp" android:textColor="@color/widget_text" android:textSize="14sp" />
     <TextView android:id="@+id/w_food" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#FFFFFFFF" android:textSize="14sp" />
+        android:textColor="@color/widget_text" android:textSize="14sp" />
     <TextView android:id="@+id/w_streak" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="2dp" android:textColor="#B3FFFFFF" android:textSize="12sp" />
+        android:layout_marginTop="2dp" android:textColor="@color/widget_sub" android:textSize="12sp" />
 </LinearLayout>

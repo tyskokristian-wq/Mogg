@@ -40,6 +40,7 @@ import com.mogg.app.data.Nutrition
 import com.mogg.app.data.Store
 import com.mogg.app.health.HealthSync
 import com.mogg.app.ui.theme.Warn
+import com.mogg.app.ui.theme.WarnBg
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -148,7 +149,7 @@ fun NutritionScreen() {
 
         plan.warnings.forEach {
             Spacer(Modifier.height(10.dp))
-            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2114))) {
+            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = WarnBg)) {
                 Text("⚠️ $it", Modifier.padding(16.dp), color = Warn)
             }
         }

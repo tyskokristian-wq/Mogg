@@ -38,6 +38,9 @@ import com.mogg.app.data.Slot
 import com.mogg.app.data.Store
 import com.mogg.app.ui.theme.Accent
 import com.mogg.app.ui.theme.Good
+import com.mogg.app.ui.theme.LightGreen
+import com.mogg.app.ui.theme.Mint
+import com.mogg.app.ui.theme.SkyBlue
 import com.mogg.app.workout.RoutineBuilder
 import com.mogg.app.workout.WorkoutStep
 
@@ -70,7 +73,8 @@ fun HomeScreen(onWorkout: (Slot) -> Unit, onCardio: () -> Unit, onFood: () -> Un
         ProgressCard(
             title = "🔥 Кардио",
             value = day.cardioKcal, target = plan.cardioTarget, unit = "ккал",
-            subtitle = if (plan.cardioTarget == 0) "Сегодня только для здоровья — по желанию" else "Цель на сегодня",
+            subtitle = "Цель на сегодня",
+            tint = Mint,
             onClick = onCardio,
         )
         Spacer(Modifier.height(10.dp))
@@ -78,10 +82,11 @@ fun HomeScreen(onWorkout: (Slot) -> Unit, onCardio: () -> Unit, onFood: () -> Un
             title = "🍽 Еда",
             value = day.eatenTotal, target = plan.intake, unit = "ккал",
             subtitle = "Чистыми (еда − кардио): ${day.eatenTotal - day.cardioKcal} ккал",
+            tint = SkyBlue,
             onClick = onFood,
         )
         Spacer(Modifier.height(10.dp))
-        Card(Modifier.fillMaxWidth()) {
+        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F4FF))) {
             Column(Modifier.padding(16.dp)) {
                 Text("💧 Вода: ${day.waterMl} / ${(p.weightKg * 35).toInt()} мл", fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
@@ -113,7 +118,7 @@ private fun WorkoutCard(title: String, steps: List<WorkoutStep>, done: Boolean, 
     val names = steps.filterIsInstance<WorkoutStep.Do>().map { it.exercise.title }
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = if (done) Color(0xFF14261C) else MaterialTheme.colorScheme.surfaceContainerHigh)
+        colors = CardDefaults.cardColors(containerColor = if (done) LightGreen else Color(0xFFF4F7F5))
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -129,8 +134,8 @@ private fun WorkoutCard(title: String, steps: List<WorkoutStep>, done: Boolean, 
 }
 
 @Composable
-private fun ProgressCard(title: String, value: Int, target: Int, unit: String, subtitle: String, onClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+private fun ProgressCard(title: String, value: Int, target: Int, unit: String, subtitle: String, tint: Color, onClick: () -> Unit) {
+    Card(Modifier.fillMaxWidth().clickable(onClick = onClick), colors = CardDefaults.cardColors(containerColor = tint)) {
         Column(Modifier.padding(16.dp)) {
             Row {
                 Text(title, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))

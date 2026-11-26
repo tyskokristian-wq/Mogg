@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mogg.app.ui.theme.Accent
 import com.mogg.app.ui.theme.Warn
+import com.mogg.app.ui.theme.WarnBg
 
 @Composable
 fun GuidesScreen() {
@@ -83,7 +84,7 @@ private fun GuideDetail(g: Guide, onBack: () -> Unit) {
                 }
                 line.startsWith("! ") -> Text(
                     line.removePrefix("! "), color = Warn, lineHeight = 22.sp,
-                    modifier = Modifier.padding(vertical = 6.dp).fillMaxWidth().background(Color(0xFF2A2114), RoundedCornerShape(12.dp)).padding(12.dp)
+                    modifier = Modifier.padding(vertical = 6.dp).fillMaxWidth().background(WarnBg, RoundedCornerShape(12.dp)).padding(12.dp)
                 )
                 else -> Text(line, lineHeight = 22.sp, modifier = Modifier.padding(vertical = 2.dp))
             }
