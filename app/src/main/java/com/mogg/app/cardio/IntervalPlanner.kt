@@ -92,9 +92,10 @@ object IntervalPlanner {
         while (true) {
             val (r, w) = lv.pattern[i % lv.pattern.size]
             if (used + r > totalSec) break
-            list += run.copy(seconds = r); used += r
+            if (r > 0) { list += run.copy(seconds = r); used += r }
             val wl = minOf(w, totalSec - used)
             if (wl > 0) { list += walk.copy(seconds = wl); used += wl }
+            if (r == 0 && wl == 0) break
             i++
         }
         // добиваем остаток шагом, чтобы время совпало
@@ -107,6 +108,23 @@ object IntervalPlanner {
      * Ты выбираешь только время. Приложение берёт самую лёгкую схему,
      * которая за это время сожжёт [target] ккал. Не хватает времени — самая мощная схема.
      */
+    /**
+     * Варианты времени, за которые реально сжечь [target] ккал:
+     * минимальное (самая высокая интенсивность) и подольше, но полегче.
+     */
+    fun timeOptions(p: Profile, target: Int): List<Int> {
+        if (target <= 0) return listOf(30)
+        val min = (15..300 step 5).firstOrNull { build(p, target, it).kcal >= target } ?: 300
+        return listOf(min, min + 10, min + 20, min + 35, min + 50).distinctBy { build(p, target, it).patternName }
+            .ifEmpty { listOf(min) }
+    }
+
+    /** Ближайший к сохранённому вариант (но не меньше минимального). */
+    fun pickMinutes(p: Profile, target: Int): Int {
+        val opts = timeOptions(p, target)
+        return opts.minBy { kotlin.math.abs(it - p.cardioSessionMinutes) }
+    }
+
     fun build(p: Profile, target: Int, minutes: Int, number: Int = 1): CardioSession {
         val total = minutes * 60
         val sessions = levels.map { assemble(p, it, total, number) }

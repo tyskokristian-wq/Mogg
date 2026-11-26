@@ -69,7 +69,8 @@ fun CardioRunScreen(onClose: () -> Unit) {
     val day = start.days[Store.today()] ?: Store.day()
     val session = remember {
         val plan = Nutrition.plan(p, day.eatenTotal)
-        IntervalPlanner.build(p, (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0), p.cardioSessionMinutes)
+        val left = (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0)
+        IntervalPlanner.build(p, left, IntervalPlanner.pickMinutes(p, left))
     }
     val lib = remember { ExerciseLibrary.get(context) }
 

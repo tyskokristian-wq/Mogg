@@ -45,20 +45,25 @@ fun CardioScreen(onStart: () -> Unit) {
     val day = state.days[Store.today()] ?: Store.day()
     val plan = Nutrition.plan(p, day.eatenTotal)
     val left = (plan.cardioTarget - day.cardioKcal).coerceAtLeast(0)
-    val session = IntervalPlanner.build(p, left, p.cardioSessionMinutes)
+    val minutes = IntervalPlanner.pickMinutes(p, left)
+    val session = IntervalPlanner.build(p, left, minutes)
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Кардио", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             YesSign(100.dp, -10f)
         }
-        Text("Выбери только время — скорость, наклон и схему шаг/бег приложение подберёт само.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Калории всегда ${plan.cardioTarget}. Выбираешь время: меньше минут — больше бега и быстрее, больше минут — легче.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(12.dp))
 
         Text("Сколько минут", fontWeight = FontWeight.SemiBold)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(20, 30, 45, 60, 90, 120).forEach { m ->
-                FilterChip(selected = p.cardioSessionMinutes == m, onClick = { Store.updateProfile { it.copy(cardioSessionMinutes = m) } }, label = { Text("$m мин") })
+        Column {
+            IntervalPlanner.timeOptions(p, left).forEach { m ->
+                FilterChip(
+                    selected = minutes == m,
+                    onClick = { Store.updateProfile { it.copy(cardioSessionMinutes = m) } },
+                    label = { Text("$m мин — ${IntervalPlanner.build(p, left, m).patternName}") },
+                )
             }
         }
         Spacer(Modifier.height(8.dp))
@@ -83,10 +88,6 @@ fun CardioScreen(onStart: () -> Unit) {
                     Text("Кардио на сегодня сделано ✅", color = MaterialTheme.colorScheme.primary)
                 } else {
                     Text("${session.seconds / 60} мин · ~${session.kcal} ккал · ${session.patternName}", fontWeight = FontWeight.SemiBold)
-                    if (session.kcal < left) Text(
-                        "За ${p.cardioSessionMinutes} мин успеешь ~${session.kcal} из $left ккал. Остальное — ещё одной тренировкой или выбери больше минут.",
-                        fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }

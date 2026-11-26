@@ -68,10 +68,14 @@ class LogicTest {
 
     @Test fun intervals() {
         val p = Profile(age = 20, heightCm = 170, weightKg = 52.0, cardioMode = com.mogg.app.data.CardioMode.TREADMILL)
-        for (m in listOf(20, 30, 45, 60, 90)) {
-            val s = com.mogg.app.cardio.IntervalPlanner.build(p, 600, m)
-            println("min=$m -> ${s.seconds / 60} мин ${s.kcal} ккал ${s.patternName} run=${s.intervals.first { it.pace == com.mogg.app.cardio.Pace.RUN }.setting}")
-            assertTrue(s.seconds == m * 60)
+        for (kg in listOf(52.0, 70.0, 90.0)) {
+            val pk = p.copy(weightKg = kg)
+            for (m in com.mogg.app.cardio.IntervalPlanner.timeOptions(pk, 600)) {
+                val s = com.mogg.app.cardio.IntervalPlanner.build(pk, 600, m)
+                println("kg=$kg min=$m -> ${s.kcal} ккал ${s.patternName}")
+                assertTrue(s.kcal >= 600)
+                assertTrue(s.seconds == m * 60)
+            }
         }
     }
 }
