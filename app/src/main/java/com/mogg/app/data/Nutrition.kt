@@ -28,7 +28,7 @@ data class CaloriePlan(
 
 object Nutrition {
     const val TARGET_NET = 1000
-    const val CARDIO_MIN = 500
+    const val CARDIO_MIN = 600
     const val CARDIO_MAX = 1000
 
     fun bmr(p: Profile): Double {
@@ -57,24 +57,13 @@ object Nutrition {
         }
         val recomp = maxDeficit == 0
 
-        val intake = p.intakeGoal
-        // Сколько кардио хотел бы пользователь: чтобы чистыми было ~1000.
-        val wanted = (intake - TARGET_NET).coerceIn(CARDIO_MIN, CARDIO_MAX)
-        val baseDeficit = tdee - intake
-        // Сколько кардио можно, не перейдя безопасную границу.
-        val allowed = maxDeficit - baseDeficit
-
-        val cardio: Int
-        if (recomp) {
-            cardio = 300
-            val eatTo = (tdee + cardio).roundToInt()
-            tips += "Норма ~$eatTo ккал с учётом кардио."
-        } else {
-            cardio = min(wanted.toDouble(), max(0.0, allowed)).roundToInt()
-            if (allowed <= 0) {
-                val minIntake = (tdee - maxDeficit).roundToInt()
-                warnings += "Еда уже даёт дефицит ${baseDeficit.roundToInt()} ккал. Минимум еды: $minIntake ккал."
-            }
+        // Кардио всегда минимум 600 ккал (до 1000 — если ешь больше).
+        val cardio = (p.intakeGoal - TARGET_NET).coerceIn(CARDIO_MIN, CARDIO_MAX)
+        // Еда подстраивается так, чтобы общий дефицит не превышал maxDeficit.
+        val minIntake = (tdee + cardio - maxDeficit).roundToInt()
+        val intake = max(p.intakeGoal, minIntake)
+        if (intake > p.intakeGoal) {
+            tips += "С кардио $cardio ккал можно есть $intake ккал — худеешь с той же скоростью."
         }
 
         val net = intake - cardio
@@ -86,11 +75,11 @@ object Nutrition {
             bmr = bmr.roundToInt(),
             tdee = tdee.roundToInt(),
             bmi = bmi,
-            intake = if (recomp) (tdee + cardio).roundToInt() else intake,
+            intake = intake,
             maxDeficit = maxDeficit,
             cardioTarget = cardio,
-            net = if (recomp) tdee.roundToInt() else net,
-            deficit = if (recomp) 0 else deficit,
+            net = net,
+            deficit = deficit,
             recompMode = recomp,
             warnings = warnings,
             tips = tips,
@@ -123,7 +112,8 @@ object Cardio {
     }
 
     fun description(p: Profile, mode: CardioMode = p.cardioMode): String = when (mode) {
-        CardioMode.TREADMILL -> "Скорость ${"%.1f".format(p.treadmillSpeed)} км/ч, наклон ${"%.0f".format(p.treadmillIncline)}%. Идёшь, не бежишь — можно разговаривать."
+        CardioMode.TREADMILL -> "Скорость ${"%.1f".format(p.treadmillSpeed)} км/ч, наклон ${"%.0f".format(p.treadmillIncline)}%. " +
+            if (p.treadmillSpeed >= 8.0) "Это уже бег." else "Идёшь, не бежишь — можно разговаривать."
         CardioMode.WALK -> "Быстрый шаг ~6 км/ч. Дыхание учащённое, но можешь говорить."
         CardioMode.BIKE -> "Умеренный темп, лёгкое сопротивление, ~60–80 об/мин."
         CardioMode.ELLIPTICAL -> "Средний темп, сопротивление 3–5 из 10."

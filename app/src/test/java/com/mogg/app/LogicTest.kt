@@ -54,12 +54,13 @@ class LogicTest {
             Profile(age = 15, heightCm = 170, weightKg = 60.0),
             Profile(age = 16, heightCm = 178, weightKg = 75.0, intakeGoal = 1800),
             Profile(age = 22, heightCm = 180, weightKg = 57.0),
+            Profile(age = 20, heightCm = 170, weightKg = 52.0, activity = Activity.STEPS_10K, intakeGoal = 1500),
             Profile(age = 20, heightCm = 180, weightKg = 62.0, activity = Activity.STEPS_10K, intakeGoal = 1500),
         ).forEach { p ->
             val plan = Nutrition.plan(p)
             println("age=${p.age} ${p.heightCm}/${p.weightKg} eat=${p.intakeGoal}: tdee=${plan.tdee} cardio=${plan.cardioTarget} net=${plan.net} deficit=${plan.deficit} max=${plan.maxDeficit} recomp=${plan.recompMode}")
             assertTrue(plan.deficit <= plan.maxDeficit + 1 || (plan.cardioTarget == 0 && plan.warnings.isNotEmpty()))
-            assertTrue(plan.cardioTarget in 0..1000)
+            assertTrue(plan.cardioTarget in 600..1000)
         }
     }
 }
