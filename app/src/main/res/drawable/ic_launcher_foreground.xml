@@ -1,0 +1,6 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- угловатая «челюсть» M -->
+    <path android:fillColor="#FFB388FF"
+        android:pathData="M30,72 L30,36 L42,36 L54,52 L66,36 L78,36 L78,72 L68,72 L68,52 L54,68 L40,52 L40,72 Z" />
+</vector>

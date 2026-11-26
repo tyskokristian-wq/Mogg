@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Mogg</string>
+    <string name="widget_desc">Сегодня: утро, вечер, кардио, еда</string>
+</resources>
