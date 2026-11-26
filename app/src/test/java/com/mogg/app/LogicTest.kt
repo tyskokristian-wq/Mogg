@@ -52,6 +52,7 @@ class LogicTest {
             Profile(age = 25, heightCm = 175, weightKg = 95.0, intakeGoal = 1800),
             Profile(age = 25, heightCm = 185, weightKg = 85.0, activity = Activity.MODERATE, intakeGoal = 2000),
             Profile(age = 15, heightCm = 170, weightKg = 60.0),
+            Profile(age = 16, heightCm = 178, weightKg = 75.0, intakeGoal = 1800),
             Profile(age = 22, heightCm = 180, weightKg = 57.0),
         ).forEach { p ->
             val plan = Nutrition.plan(p)

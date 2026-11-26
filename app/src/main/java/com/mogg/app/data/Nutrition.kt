@@ -51,9 +51,9 @@ object Nutrition {
 
         // Безопасный максимум дефицита в день.
         val maxDeficit = when {
-            minor -> 0
             bmi < 18.5 -> 0
             bmi < 20.5 -> 300
+            minor -> 400
             bmi < 27 -> 700
             else -> 1000
         }
@@ -70,11 +70,7 @@ object Nutrition {
         if (recomp) {
             cardio = 300
             val eatTo = (tdee + cardio).roundToInt()
-            if (minor) {
-                warnings += "Тебе меньше 18 — включена рекомпозиция: ешь по норме (~$eatTo ккал с учётом кардио), кардио + упражнения сделают лицо и тело суше без вреда для роста и гормонов."
-            } else {
-                warnings += "ИМТ ${"%.1f".format(bmi)} — худеть дальше некуда, лицо от этого станет только хуже (уйдут мышцы и объём). Режим рекомпозиции: ешь ~$eatTo ккал, кардио 300 ккал."
-            }
+            tips += "Вес держим на норме (~$eatTo ккал с учётом кардио), лицо прорабатываем упражнениями."
         } else {
             cardio = min(wanted.toDouble(), max(0.0, allowed)).roundToInt()
             if (allowed <= 0) {
