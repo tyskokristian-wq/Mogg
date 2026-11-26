@@ -51,10 +51,8 @@ object Nutrition {
 
         // Безопасный максимум дефицита в день.
         val maxDeficit = when {
-            bmi < 18.5 -> 0
-            bmi < 20.5 -> 300
+            bmi < 17.5 -> 0
             minor -> 400
-            bmi < 27 -> 700
             else -> 1000
         }
         val recomp = maxDeficit == 0
@@ -70,26 +68,19 @@ object Nutrition {
         if (recomp) {
             cardio = 300
             val eatTo = (tdee + cardio).roundToInt()
-            tips += "Вес держим на норме (~$eatTo ккал с учётом кардио), лицо прорабатываем упражнениями."
+            tips += "Норма ~$eatTo ккал с учётом кардио."
         } else {
             cardio = min(wanted.toDouble(), max(0.0, allowed)).roundToInt()
             if (allowed <= 0) {
                 val minIntake = (tdee - maxDeficit).roundToInt()
-                warnings += "При норме ${tdee.roundToInt()} ккал еда $intake уже даёт дефицит ${baseDeficit.roundToInt()} — это на грани. Кардио сейчас только для здоровья. Безопасный минимум еды: $minIntake ккал."
-            } else if (cardio < wanted) {
-                tips += "Хочешь больше кардио — ешь больше: каждые +100 ккал еды = +100 ккал кардио. Так дефицит тот же, но мышцы лица и тела целее."
+                warnings += "Еда уже даёт дефицит ${baseDeficit.roundToInt()} ккал. Минимум еды: $minIntake ккал."
             }
         }
 
         val net = intake - cardio
         val deficit = (tdee + cardio - intake).roundToInt()
 
-        if (!recomp && eatenToday != null && eatenToday > 0) {
-            val left = intake - eatenToday
-            if (left < 0) tips += "Сегодня перебор на ${-left} ккал — не страшно, просто держи норму завтра. Не надо «отрабатывать» кардио сверх плана."
-        }
-        tips += "Белок: минимум ${(p.weightKg * 1.6).roundToInt()} г в день — без него сушка съедает мышцы лица."
-        tips += "Вода: ${(p.weightKg * 35).roundToInt()} мл в день. Меньше соли вечером — меньше отёка утром."
+        tips += "Белок: ${(p.weightKg * 1.6).roundToInt()}+ г в день."
 
         return CaloriePlan(
             bmr = bmr.roundToInt(),

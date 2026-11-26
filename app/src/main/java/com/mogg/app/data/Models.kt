@@ -72,6 +72,7 @@ enum class Sex(val title: String) { MALE("Мужской"), FEMALE("Женски
 enum class Activity(val title: String, val factor: Double) {
     SITTING("Сидячий образ жизни", 1.2),
     LIGHT("Немного хожу / 1–2 тренировки", 1.375),
+    STEPS_10K("10 000 шагов в день", 1.45),
     MODERATE("Активный / 3–5 тренировок", 1.55),
 }
 
